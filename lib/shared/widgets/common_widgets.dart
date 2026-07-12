@@ -13,10 +13,15 @@ class Brand extends StatelessWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: AppColors.blue,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.line),
         ),
-        child: const Icon(Icons.radar_rounded, color: Colors.white),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(
+          'assets/image/logo_korascope.png',
+          fit: BoxFit.cover,
+        ),
       ),
       const SizedBox(width: 10),
       const Text(
@@ -36,45 +41,92 @@ class PageFrame extends StatelessWidget {
   const PageFrame({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-    child: Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1120),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-          child: child,
-        ),
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 1120),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: child,
       ),
     ),
   );
 }
 
 class AppTopBar extends StatelessWidget {
-  const AppTopBar({super.key});
+  final String? fullName;
+  final String? profileUrl;
+  final VoidCallback onProfile;
+
+  const AppTopBar({
+    super.key,
+    required this.fullName,
+    required this.profileUrl,
+    required this.onProfile,
+  });
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      if (MediaQuery.sizeOf(context).width < 880) const Brand(),
-      const Spacer(),
-      IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
-      Badge(
-        smallSize: 7,
-        child: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_none_rounded),
+  Widget build(BuildContext context) => Container(
+    color: Colors.white,
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: SafeArea(
+      bottom: false,
+      child: SizedBox(
+        height: 68,
+        child: Row(
+          children: [
+            const Brand(),
+            const Spacer(),
+            Semantics(
+              button: true,
+              label: 'Ouvrir mon compte',
+              child: InkWell(
+                onTap: onProfile,
+                customBorder: const CircleBorder(),
+                child: _HeaderAvatar(
+                  fullName: fullName,
+                  profileUrl: profileUrl,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      const CircleAvatar(
-        radius: 18,
-        backgroundColor: Color(0xFFD8E5FF),
-        child: Text(
-          'AK',
-          style: TextStyle(color: AppColors.blue, fontWeight: FontWeight.w800),
-        ),
-      ),
-    ],
+    ),
   );
+}
+
+class _HeaderAvatar extends StatelessWidget {
+  final String? fullName;
+  final String? profileUrl;
+
+  const _HeaderAvatar({required this.fullName, required this.profileUrl});
+
+  @override
+  Widget build(BuildContext context) => CircleAvatar(
+    radius: 19,
+    backgroundColor: const Color(0xFFD8E5FF),
+    backgroundImage: profileUrl == null ? null : NetworkImage(profileUrl!),
+    onBackgroundImageError: profileUrl == null ? null : (_, __) {},
+    child: profileUrl == null
+        ? Text(
+            _initials(fullName),
+            style: const TextStyle(
+              color: AppColors.blue,
+              fontWeight: FontWeight.w800,
+            ),
+          )
+        : null,
+  );
+
+  String _initials(String? value) {
+    if (value == null || value.trim().isEmpty) return '?';
+    return value
+        .trim()
+        .split(RegExp(r'\s+'))
+        .take(2)
+        .map((part) => part[0].toUpperCase())
+        .join();
+  }
 }
 
 class Panel extends StatelessWidget {

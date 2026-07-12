@@ -1,4 +1,4 @@
-package com.example.korascope
+package org.adaptimate.vigilens
 
 import io.flutter.embedding.android.FlutterActivity
 
